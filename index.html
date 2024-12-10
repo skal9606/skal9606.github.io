@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SK</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>SK</h1>
+        <p class="instructions">Play the iconic Pacman game in order to get access to my blog</p>
+        
+        <div class="game-container">
+            <div class="game-board">
+                <div class="walls-layer"></div>
+                <div class="dots-layer"></div>
+                <div class="pacman"></div>
+                <div class="ghost"></div>
+            </div>
+            <div class="score">Dots: <span id="dots-count">0</span>/90</div>
+        </div>
+
+        <div class="controls">
+            <p>Use arrow keys or WASD to move Pacman</p>
+            <button id="start-button" class="start-button" onclick="console.log('Button clicked'); window.gameInstance && window.gameInstance.startGame();">Start Game</button>
+        </div>
+
+        <div class="social-links" style="display: none;">
+            <h2>Congratulations! Here are my social links:</h2>
+            <a href="https://x.com/samwise9606" target="_blank" class="social-button twitter">
+                <span>Twitter</span>
+            </a>
+            <a href="https://www.linkedin.com/in/samit-kalra-a6179365/" target="_blank" class="social-button linkedin">
+                <span>LinkedIn</span>
+            </a>
+            <a href="https://samit-kalra.com/blog" target="_blank" class="social-button blog">
+                <span>Blog</span>
+            </a>
+        </div>
+    </div>
+    <script>
+        // Add this before loading the main script to ensure console logs are visible
+        console.clear();
+        console.log('Page loading...');
+        
+        // Add error handling
+        window.onerror = function(msg, url, line) {
+            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + line);
+            return false;
+        };
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
