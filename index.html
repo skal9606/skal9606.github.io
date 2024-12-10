@@ -21,9 +21,23 @@
             <div class="score">Dots: <span id="dots-count">0</span>/90</div>
         </div>
 
+        <!-- Mobile Controls -->
+        <div class="mobile-controls">
+            <div class="controls-row">
+                <button class="control-btn up-btn" data-direction="up">↑</button>
+            </div>
+            <div class="controls-row">
+                <button class="control-btn left-btn" data-direction="left">←</button>
+                <button class="control-btn right-btn" data-direction="right">→</button>
+            </div>
+            <div class="controls-row">
+                <button class="control-btn down-btn" data-direction="down">↓</button>
+            </div>
+        </div>
+
         <div class="controls">
-            <p>Use arrow keys or WASD to move Pacman</p>
-            <button id="start-button" class="start-button" onclick="console.log('Button clicked'); window.gameInstance && window.gameInstance.startGame();">Start Game</button>
+            <p class="desktop-controls">Use arrow keys or WASD to move Pacman</p>
+            <button id="start-button" class="start-button">Start Game</button>
         </div>
 
         <div class="social-links" style="display: none;">
@@ -39,17 +53,6 @@
             </a>
         </div>
     </div>
-    <script>
-        // Add this before loading the main script to ensure console logs are visible
-        console.clear();
-        console.log('Page loading...');
-        
-        // Add error handling
-        window.onerror = function(msg, url, line) {
-            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + line);
-            return false;
-        };
-    </script>
     <script src="script.js"></script>
 </body>
 </html>

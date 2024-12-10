@@ -8,13 +8,7 @@ class Game {
         this.ghost = document.querySelector('.ghost');
         
         if (!this.board || !this.wallsLayer || !this.dotsLayer || !this.pacman || !this.ghost) {
-            console.error('Failed to find required elements:', {
-                board: !!this.board,
-                wallsLayer: !!this.wallsLayer,
-                dotsLayer: !!this.dotsLayer,
-                pacman: !!this.pacman,
-                ghost: !!this.ghost
-            });
+            console.error('Failed to find required elements');
             return;
         }
 
@@ -23,8 +17,9 @@ class Game {
         this.gameStarted = false;
         this.gameOver = false;
 
-        // Grid size (30px per cell)
-        this.cellSize = 30;
+        // Grid size (30px per cell, scaled for mobile)
+        this.isMobile = window.innerWidth <= 768;
+        this.cellSize = this.isMobile ? 21.42 : 30; // 300/14 for mobile
         this.gridWidth = 14;
         this.gridHeight = 14;
 
@@ -32,7 +27,7 @@ class Game {
         this.pacmanPos = { x: 1, y: 1 };
         this.ghostPos = { x: 12, y: 12 };
         
-        // Simpler maze layout (1 = wall, 0 = path)
+        // Maze layout (1 = wall, 0 = path)
         this.maze = [
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [1,0,0,0,1,0,0,0,0,1,0,0,0,1],
@@ -56,7 +51,23 @@ class Game {
 
     bindEvents() {
         try {
+            // Keyboard controls
             document.addEventListener('keydown', this.handleKeyPress.bind(this));
+
+            // Mobile controls
+            const controlButtons = document.querySelectorAll('.control-btn');
+            controlButtons.forEach(button => {
+                ['touchstart', 'mousedown'].forEach(eventType => {
+                    button.addEventListener(eventType, (e) => {
+                        e.preventDefault(); // Prevent double-firing on mobile
+                        if (!this.gameStarted || this.gameOver) return;
+                        const direction = button.dataset.direction;
+                        this.handleDirectionPress(direction);
+                    });
+                });
+            });
+
+            // Start button
             const startButton = document.getElementById('start-button');
             if (startButton) {
                 startButton.addEventListener('click', () => {
@@ -65,12 +76,68 @@ class Game {
                         this.startGame();
                     }
                 });
-            } else {
-                console.error('Start button not found');
             }
         } catch (error) {
             console.error('Error binding events:', error);
         }
+    }
+
+    handleDirectionPress(direction) {
+        let newPos = { ...this.pacmanPos };
+
+        switch (direction) {
+            case 'up':
+                newPos.y--;
+                this.pacman.style.transform = 'rotate(-90deg)';
+                break;
+            case 'down':
+                newPos.y++;
+                this.pacman.style.transform = 'rotate(90deg)';
+                break;
+            case 'left':
+                newPos.x--;
+                this.pacman.style.transform = 'rotate(180deg)';
+                break;
+            case 'right':
+                newPos.x++;
+                this.pacman.style.transform = 'rotate(0deg)';
+                break;
+        }
+
+        if (!this.maze[newPos.y][newPos.x]) {
+            this.pacmanPos = newPos;
+            this.updatePacmanPosition();
+        }
+    }
+
+    handleKeyPress(e) {
+        if (!this.gameStarted || this.gameOver) return;
+
+        const key = e.key.toLowerCase();
+        let direction;
+
+        switch (key) {
+            case 'arrowup':
+            case 'w':
+                direction = 'up';
+                break;
+            case 'arrowdown':
+            case 's':
+                direction = 'down';
+                break;
+            case 'arrowleft':
+            case 'a':
+                direction = 'left';
+                break;
+            case 'arrowright':
+            case 'd':
+                direction = 'right';
+                break;
+            default:
+                return;
+        }
+
+        this.handleDirectionPress(direction);
     }
 
     startGame() {
@@ -94,15 +161,12 @@ class Game {
     createMaze() {
         try {
             console.log('Creating maze...');
-            // Clear existing maze
             this.wallsLayer.innerHTML = '';
             this.dotsLayer.innerHTML = '';
 
-            // Create walls and dots
             for (let y = 0; y < this.gridHeight; y++) {
                 for (let x = 0; x < this.gridWidth; x++) {
                     if (this.maze[y][x] === 1) {
-                        // Create wall
                         const wall = document.createElement('div');
                         wall.className = 'wall';
                         wall.style.width = this.cellSize + 'px';
@@ -111,11 +175,10 @@ class Game {
                         wall.style.top = (y * this.cellSize) + 'px';
                         this.wallsLayer.appendChild(wall);
                     } else if (!(x === 1 && y === 1) && !(x === 12 && y === 12)) {
-                        // Create dot (except at Pacman and Ghost starting positions)
                         const dot = document.createElement('div');
                         dot.className = 'dot';
-                        dot.style.left = (x * this.cellSize + 12) + 'px';
-                        dot.style.top = (y * this.cellSize + 12) + 'px';
+                        dot.style.left = (x * this.cellSize + this.cellSize/2 - 3) + 'px';
+                        dot.style.top = (y * this.cellSize + this.cellSize/2 - 3) + 'px';
                         this.dotsLayer.appendChild(dot);
                         this.dotsCount++;
                     }
@@ -149,43 +212,6 @@ class Game {
         this.ghost.style.left = (this.ghostPos.x * this.cellSize) + 'px';
         this.ghost.style.top = (this.ghostPos.y * this.cellSize) + 'px';
         this.checkGhostCollision();
-    }
-
-    handleKeyPress(e) {
-        if (!this.gameStarted || this.gameOver) return;
-
-        const key = e.key.toLowerCase();
-        let newPos = { ...this.pacmanPos };
-
-        switch (key) {
-            case 'arrowup':
-            case 'w':
-                newPos.y--;
-                this.pacman.style.transform = 'rotate(-90deg)';
-                break;
-            case 'arrowdown':
-            case 's':
-                newPos.y++;
-                this.pacman.style.transform = 'rotate(90deg)';
-                break;
-            case 'arrowleft':
-            case 'a':
-                newPos.x--;
-                this.pacman.style.transform = 'rotate(180deg)';
-                break;
-            case 'arrowright':
-            case 'd':
-                newPos.x++;
-                this.pacman.style.transform = 'rotate(0deg)';
-                break;
-            default:
-                return;
-        }
-
-        if (!this.maze[newPos.y][newPos.x]) {
-            this.pacmanPos = newPos;
-            this.updatePacmanPosition();
-        }
     }
 
     moveGhost() {
@@ -227,8 +253,8 @@ class Game {
     checkDotCollection() {
         const dots = this.dotsLayer.querySelectorAll('.dot');
         dots.forEach(dot => {
-            const dotX = parseInt(dot.style.left) - 12;
-            const dotY = parseInt(dot.style.top) - 12;
+            const dotX = parseInt(dot.style.left) - (this.cellSize/2 - 3);
+            const dotY = parseInt(dot.style.top) - (this.cellSize/2 - 3);
             if (dotX === this.pacmanPos.x * this.cellSize && 
                 dotY === this.pacmanPos.y * this.cellSize) {
                 dot.remove();
